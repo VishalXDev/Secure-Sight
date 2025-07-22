@@ -1,36 +1,101 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+🔒 SecureSight Dashboard
 
-## Getting Started
+SecureSight is a full-stack, real-time monitoring dashboard built with Next.js 15, React Three Fiber, and Zustand. It features a sleek UI, a 3D visualization scene, incident playback with a timeline, drag-and-drop incident reordering, and more — designed for managing security camera feeds and incidents efficiently.
 
-First, run the development server:
+---
 
+## 🚀 Features
+
+### ✅ Core Features
+- 📺 **Dashboard View**: Overview of scenes, cameras, and incidents.
+- 🎥 **Cameras Page**: Manage and view connected camera data.
+- 🌐 **Scenes Page**: 3D scene rendered using Blender `.glb` model with React Three Fiber.
+- ⚠️ **Incidents Page**: View, manage, and reorder incidents.
+- 👤 **Users Page**: Admin view of registered users.
+- ⏱️ **Incident Player**: Timeline-synced playback of incidents.
+- 🧩 **Global State Management**: Zustand used across timeline/player/scene.
+
+### 🧪 Bonus Features
+- 📊 Interactive timeline synced with incidents
+- 🔄 Drag-and-drop incident reordering (`@hello-pangea/dnd`)
+- 🎮 3D model interactions (hover/select objects in scene)
+- 📱 Fully responsive design (desktop + mobile)
+- 🚀 Optimized performance with `useMemo` and `@react-three/drei/Preload`
+
+---
+
+## 🧱 Tech Stack
+
+| Technology       | Description                             |
+| ---------------- | ---------------------------------------- |
+| **Next.js 15**   | App Router, Server Components            |
+| **TypeScript**   | Type safety throughout                   |
+| **Tailwind CSS** | Utility-first UI styling                 |
+| **Zustand**      | Lightweight global state management      |
+| **Framer Motion**| UI Animations                            |
+| **React Three Fiber** | 3D rendering + GLTF support        |
+| **@hello-pangea/dnd** | Drag-and-drop incident list       |
+| **Blender + GLB**| Custom 3D scenes rendered in-browser     |
+
+---
+
+## ⚙️ Getting Started
+
+### 1. Clone the Repository
 ```bash
+git clone https://github.com/your-username/securesight-dashboard.git
+cd securesight-dashboard
+2. Install Dependencies
+bash
+Copy
+Edit
+npm install
+3. Run the Development Server
+bash
+Copy
+Edit
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+Visit http://localhost:3000 to view the dashboard.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+🗂️ Project Structure
+bash
+Copy
+Edit
+/app
+  /dashboard         # Overview of stats
+  /cameras           # Camera list and statuses
+  /scenes            # 3D GLB-rendered view
+  /incidents         # Incident timeline and cards
+  /users             # Admin user list
+/components          # Reusable components (Navbar, Player, Timeline etc.)
+/lib                 # Utility functions (e.g., formatDuration)
+/public/favicon      # Favicon assets
+📁 Favicon Setup
+All favicon files are placed in:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+arduino
+Copy
+Edit
+/public/favicon/
+And used in layout.tsx as:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+ts
+Copy
+Edit
+<link rel="icon" href="/favicon/icons8-bullet-camera-ios-17-filled-32.png" />
+🧪 Optional Enhancements
+✅ Sync 3D camera nodes with selected incidents
 
-## Learn More
+✅ Persist state via localStorage or API
 
-To learn more about Next.js, take a look at the following resources:
+🔜 Realtime updates via WebSocket
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+🔒 Role-based access control (RBAC)
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+⚙️ Backend integration for real incidents/cameras
 
-## Deploy on Vercel
+👨‍💻 Author
+Vishal Dwivedy (VishXDev)
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+📄 License
+This project is licensed under the MIT License – see the LICENSE file for details.
