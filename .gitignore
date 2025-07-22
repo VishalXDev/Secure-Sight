@@ -44,3 +44,6 @@ next-env.d.ts
 
 # prisma generated types or clients
 /app/generated/prisma
+next-env.d.ts
+package.json
+package-lock.json
