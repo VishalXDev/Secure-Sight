@@ -11,13 +11,18 @@ model Camera {
   id        String     @id @default(auto()) @map("_id") @db.ObjectId
   name      String
   location  String
-  incidents Incident[] @relation("CameraIncidents")
+
+  // ✅ Explicit relation name
+  incidents Incident[] @relation(name: "CameraIncidents")
 }
 
 model Incident {
   id         String   @id @default(auto()) @map("_id") @db.ObjectId
   cameraId   String   @db.ObjectId
-  camera     Camera   @relation("CameraIncidents", fields: [cameraId], references: [id])
+
+  // ✅ Match relation name exactly, define fields + references
+  camera     Camera   @relation(name: "CameraIncidents", fields: [cameraId], references: [id])
+
   type       String?
   tsStart    DateTime
   tsEnd      DateTime

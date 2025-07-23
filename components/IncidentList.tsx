@@ -7,14 +7,24 @@ import { Incident } from '@/types'
 
 export default function IncidentList() {
   const [loading, setLoading] = useState(true)
-  const { incidents, setIncidents, reorderIncidents, selectIncident } = useIncidentStore()
+  const { incidents = [], setIncidents, reorderIncidents, selectIncident } = useIncidentStore()
 
   useEffect(() => {
     const fetchIncidents = async () => {
-      const res = await fetch('/api/incidents?resolved=false')
-      const data = await res.json()
-      setIncidents(data as Incident[])
-      setLoading(false)
+      try {
+        const res = await fetch('/api/incidents?resolved=false')
+        if (!res.ok) throw new Error('Network response was not ok')
+
+        const data = await res.json()
+        if (!Array.isArray(data)) throw new Error('Invalid response format')
+
+        setIncidents(data as Incident[])
+      } catch (err: any) {
+        console.error('Error fetching incidents:', err.message)
+        setIncidents([]) // fallback to empty list
+      } finally {
+        setLoading(false)
+      }
     }
 
     fetchIncidents()
@@ -100,8 +110,7 @@ export default function IncidentList() {
                             Duration:{' '}
                             {Math.round(
                               (new Date(incident.tsEnd).getTime() -
-                                new Date(incident.tsStart).getTime()) /
-                                1000
+                                new Date(incident.tsStart).getTime()) / 1000
                             )}
                             s
                           </div>

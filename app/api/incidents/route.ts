@@ -1,5 +1,3 @@
-// app/api/incidents/route.ts
-
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 
@@ -15,11 +13,15 @@ export async function GET(req: Request) {
         ? { resolved: true }
         : {}
 
+    console.log('📦 Fetching incidents with where:', whereClause)
+
     const incidents = await prisma.incident.findMany({
       where: whereClause,
-      include: { camera: true }, // assumes you have a relation set up
+      include: { camera: true },
       orderBy: { tsStart: 'desc' },
     })
+
+    console.log('✅ Incidents fetched:', incidents.length)
 
     if (!Array.isArray(incidents)) {
       console.error('❌ Expected incidents to be array but got:', incidents)
