@@ -12,20 +12,25 @@ model Camera {
   name      String
   location  String
 
-  // Define 1-to-many relation from Camera to Incident
+  // 1-to-many relation to Incident
   incidents Incident[] @relation(name: "CameraIncidents")
 }
 
 model Incident {
-  id         String   @id @default(auto()) @map("_id") @db.ObjectId
-  cameraId   String   @db.ObjectId
+  id         String    @id @default(auto()) @map("_id") @db.ObjectId
 
-  // Match the same relation name used in Camera
-  camera     Camera   @relation(name: "CameraIncidents", fields: [cameraId], references: [id])
+  // ✅ Make cameraId optional
+  cameraId   String?   @db.ObjectId
+
+  // ✅ Make camera relation optional
+  camera     Camera?   @relation(name: "CameraIncidents", fields: [cameraId], references: [id])
 
   type       String?
   tsStart    DateTime
-  tsEnd      DateTime?   // ✅ Made optional to prevent crash on null
-  thumbnail  String
-  resolved   Boolean  @default(false)
+  tsEnd      DateTime?
+  thumbnail  String?
+  videoUrl   String?
+  resolved   Boolean   @default(false)
+  confidence Float?
+  duration   Int?
 }

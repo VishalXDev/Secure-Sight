@@ -1,32 +1,51 @@
-import { NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
+import { NextResponse } from "next/server";
+import { prisma } from "@/lib/prisma";
 
 export async function GET(req: Request) {
   try {
-    const { searchParams } = new URL(req.url)
-    const resolved = searchParams.get('resolved')
+    const { searchParams } = new URL(req.url);
+    const resolvedParam = searchParams.get("resolved");
 
-    let whereClause = {}
-    if (resolved === 'false') whereClause = { resolved: false }
-    else if (resolved === 'true') whereClause = { resolved: true }
+    console.log("🔍 Incoming GET /api/incidents");
+    console.log("➡️ resolved param:", resolvedParam);
 
-    console.log('✅ Incoming /api/incidents request')
-    console.log('📌 Query resolved =', resolved)
-    console.log('🔎 Where clause =', whereClause)
+    let whereClause: Record<string, any> = {};
+    if (resolvedParam === "false") whereClause.resolved = false;
+    else if (resolvedParam === "true") whereClause.resolved = true;
 
     const incidents = await prisma.incident.findMany({
       where: whereClause,
-      include: { camera: true },
-      orderBy: { tsStart: 'desc' },
-    })
+      include: {
+        camera: {
+          select: {
+            id: true,
+            name: true,
+            location: true,
+          },
+        },
+      },
+      orderBy: { tsStart: "desc" },
+    });
 
-    console.log('✅ Incidents fetched:', incidents.length)
-    return NextResponse.json(incidents, { status: 200 })
-  } catch (error: any) {
-    console.error('❌ Failed to fetch incidents:', error.message || error)
+    console.log("✅ incidents fetched:", incidents.length);
+
     return NextResponse.json(
-      { error: 'Failed to fetch incidents', detail: error.message },
+      {
+        success: true,
+        count: incidents.length,
+        incidents,
+      },
+      { status: 200 }
+    );
+  } catch (error: any) {
+    console.error("❌ /api/incidents error:", error.message || error);
+    return NextResponse.json(
+      {
+        success: false,
+        error: "Failed to fetch incidents",
+        detail: error.message || "Unknown error",
+      },
       { status: 500 }
-    )
+    );
   }
 }

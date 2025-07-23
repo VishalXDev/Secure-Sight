@@ -1,5 +1,3 @@
-// app/api/incidents/[id]/resolve/route.ts
-
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 
@@ -19,8 +17,8 @@ export async function GET(
     }
 
     return NextResponse.json(incident)
-  } catch (error) {
-    return NextResponse.json({ error: 'Failed to fetch incident' }, { status: 500 })
+  } catch (error: any) {
+    return NextResponse.json({ error: 'Failed to fetch incident', detail: error.message }, { status: 500 })
   }
 }
 
@@ -29,14 +27,26 @@ export async function PATCH(
   req: Request,
   { params }: { params: { id: string } }
 ) {
+  const id = params?.id
+
+  if (!id || typeof id !== 'string') {
+    return NextResponse.json({ error: 'Invalid or missing incident ID' }, { status: 400 })
+  }
+
   try {
+    const incident = await prisma.incident.findUnique({ where: { id } })
+
+    if (!incident) {
+      return NextResponse.json({ error: 'Incident not found' }, { status: 404 })
+    }
+
     const updatedIncident = await prisma.incident.update({
-      where: { id: params.id },
+      where: { id },
       data: { resolved: true },
     })
 
     return NextResponse.json(updatedIncident)
-  } catch (error) {
-    return NextResponse.json({ error: 'Incident not found' }, { status: 404 })
+  } catch (error: any) {
+    return NextResponse.json({ error: 'Failed to update incident', detail: error.message }, { status: 500 })
   }
 }

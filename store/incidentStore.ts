@@ -1,4 +1,3 @@
-// store/incidentStore.ts
 import { create } from 'zustand'
 import { Incident } from '@/types'
 
@@ -29,6 +28,7 @@ export const useIncidentStore = create<IncidentStore>((set) => ({
   filters: {},
 
   setIncidents: (data) => set({ incidents: data }),
+
   reorderIncidents: (from, to) =>
     set((state) => {
       const updated = [...state.incidents]

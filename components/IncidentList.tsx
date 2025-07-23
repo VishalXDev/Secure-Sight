@@ -16,12 +16,14 @@ export default function IncidentList() {
         if (!res.ok) throw new Error('Network response was not ok')
 
         const data = await res.json()
-        if (!Array.isArray(data)) throw new Error('Invalid response format')
+        const incidentArray = Array.isArray(data) ? data : data.incidents
 
-        setIncidents(data as Incident[])
+        if (!Array.isArray(incidentArray)) throw new Error('Invalid response format')
+
+        setIncidents(incidentArray as Incident[])
       } catch (err: any) {
         console.error('Error fetching incidents:', err.message)
-        setIncidents([]) // fallback to empty list
+        setIncidents([])
       } finally {
         setLoading(false)
       }
@@ -109,8 +111,7 @@ export default function IncidentList() {
                           <div className="text-xs text-gray-500 mt-1">
                             Duration:{' '}
                             {Math.round(
-                              (new Date(incident.tsEnd).getTime() -
-                                new Date(incident.tsStart).getTime()) / 1000
+                              (new Date(incident.tsEnd).getTime() - new Date(incident.tsStart).getTime()) / 1000
                             )}
                             s
                           </div>

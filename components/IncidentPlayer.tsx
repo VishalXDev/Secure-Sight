@@ -1,12 +1,12 @@
-'use client'
+"use client";
 
-import { useEffect, useRef, useState, useMemo } from 'react'
-import { useIncidentStore } from '@/store/incidentStore'
-import { Incident } from '@/types'
+import { useEffect, useRef, useState, useMemo } from "react";
+import { useIncidentStore } from "@/store/incidentStore";
+import { Incident } from "@/types";
 
 export default function IncidentPlayer() {
-  const videoRef = useRef<HTMLVideoElement | null>(null)
-  const timelineRef = useRef<SVGSVGElement | null>(null)
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+  const timelineRef = useRef<SVGSVGElement | null>(null);
 
   const {
     incidents,
@@ -15,112 +15,117 @@ export default function IncidentPlayer() {
     setScrubberPos,
     videoDuration,
     setVideoDuration,
-  } = useIncidentStore()
+  } = useIncidentStore();
 
-  const [isDragging, setIsDragging] = useState(false)
-  const [isPlaying, setIsPlaying] = useState(false)
+  const [isDragging, setIsDragging] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(false);
 
   useEffect(() => {
     const fetchIncidents = async () => {
       try {
-        const res = await fetch('/api/incidents')
-        const data = await res.json()
-        if (!res.ok || data.error) {
-          console.error('Error fetching incidents:', data.error || res.statusText)
-          return
+        const res = await fetch("/api/incidents");
+        const data = await res.json();
+
+        if (!res.ok || data.error || !data.success) {
+          console.error(
+            "Error fetching incidents:",
+            data.error || res.statusText
+          );
+          return;
         }
 
-        const valid = data.filter(
+        const valid = data.incidents.filter(
           (incident: Incident) =>
-            incident.tsStart && typeof incident.type === 'string'
-        )
-        setIncidents(valid)
+            incident.tsStart && typeof incident.type === "string"
+        );
+        setIncidents(valid);
       } catch (err) {
-        console.error('Fetch error:', err)
+        console.error("Fetch error:", err);
       }
-    }
+    };
 
-    fetchIncidents()
-  }, [setIncidents])
+    fetchIncidents();
+  }, [setIncidents]);
 
   useEffect(() => {
-    const video = videoRef.current
-    if (!video) return
+    const video = videoRef.current;
+    if (!video) return;
 
     const updateScrubber = () => {
       if (!isDragging) {
-        setScrubberPos(video.currentTime)
+        setScrubberPos(video.currentTime);
       }
-    }
+    };
 
-    video.addEventListener('timeupdate', updateScrubber)
-    return () => video.removeEventListener('timeupdate', updateScrubber)
-  }, [isDragging, setScrubberPos])
+    video.addEventListener("timeupdate", updateScrubber);
+    return () => video.removeEventListener("timeupdate", updateScrubber);
+  }, [isDragging, setScrubberPos]);
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
-      if (!isDragging || !timelineRef.current || !videoRef.current) return
+      if (!isDragging || !timelineRef.current || !videoRef.current) return;
 
-      const rect = timelineRef.current.getBoundingClientRect()
-      const x = e.clientX - rect.left
-      const width = rect.width
-      const clampedX = Math.max(0, Math.min(x, width))
-      const newTime = (clampedX / width) * videoDuration
+      const rect = timelineRef.current.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const width = rect.width;
+      const clampedX = Math.max(0, Math.min(x, width));
+      const newTime = (clampedX / width) * videoDuration;
 
-      videoRef.current.currentTime = newTime
-      setScrubberPos(newTime)
-    }
+      videoRef.current.currentTime = newTime;
+      setScrubberPos(newTime);
+    };
 
-    const handleMouseUp = () => setIsDragging(false)
+    const handleMouseUp = () => setIsDragging(false);
 
-    window.addEventListener('mousemove', handleMouseMove)
-    window.addEventListener('mouseup', handleMouseUp)
+    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("mouseup", handleMouseUp);
     return () => {
-      window.removeEventListener('mousemove', handleMouseMove)
-      window.removeEventListener('mouseup', handleMouseUp)
-    }
-  }, [isDragging, videoDuration, setScrubberPos])
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mouseup", handleMouseUp);
+    };
+  }, [isDragging, videoDuration, setScrubberPos]);
 
   const handleScrubClick = (e: React.MouseEvent<SVGSVGElement>) => {
-    if (!timelineRef.current || !videoRef.current) return
+    if (!timelineRef.current || !videoRef.current) return;
 
-    const rect = timelineRef.current.getBoundingClientRect()
-    const x = e.clientX - rect.left
-    const width = rect.width
-    const newTime = (x / width) * videoDuration
+    const rect = timelineRef.current.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const width = rect.width;
+    const newTime = (x / width) * videoDuration;
 
-    videoRef.current.currentTime = newTime
-    setScrubberPos(newTime)
-  }
+    videoRef.current.currentTime = newTime;
+    setScrubberPos(newTime);
+  };
 
   const togglePlay = () => {
-    if (!videoRef.current) return
+    if (!videoRef.current) return;
     if (videoRef.current.paused) {
-      videoRef.current.play()
-      setIsPlaying(true)
+      videoRef.current.play();
+      setIsPlaying(true);
     } else {
-      videoRef.current.pause()
-      setIsPlaying(false)
+      videoRef.current.pause();
+      setIsPlaying(false);
     }
-  }
+  };
 
   // ⏱️ Memoize incident markers
   const incidentMarkers = useMemo(() => {
-    if (!videoDuration || isNaN(videoDuration)) return []
+    if (!videoDuration || isNaN(videoDuration)) return [];
 
     return incidents.map((incident) => {
-      const ts = new Date(incident.tsStart).getTime() / 1000
-      const pos = (ts / videoDuration) * 100
-      return { ...incident, pos: Math.min(Math.max(pos, 0), 100) }
-    })
-  }, [incidents, videoDuration])
+      const ts = new Date(incident.tsStart).getTime() / 1000;
+      const pos = (ts / videoDuration) * 100;
+      return { ...incident, pos: Math.min(Math.max(pos, 0), 100) };
+    });
+  }, [incidents, videoDuration]);
 
   return (
     <div className="bg-gray-900 rounded-xl p-6 shadow-lg border border-gray-800">
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-xl font-bold text-gray-100">Incident Review</h2>
         <div className="text-sm text-gray-400">
-          {incidents.length} {incidents.length === 1 ? 'incident' : 'incidents'} detected
+          {incidents.length} {incidents.length === 1 ? "incident" : "incidents"}{" "}
+          detected
         </div>
       </div>
 
@@ -140,7 +145,7 @@ export default function IncidentPlayer() {
         <button
           onClick={togglePlay}
           className={`absolute inset-0 m-auto w-16 h-16 bg-black/50 rounded-full flex items-center justify-center transition-all duration-200 ${
-            isPlaying ? 'opacity-0 group-hover:opacity-100' : 'opacity-100'
+            isPlaying ? "opacity-0 group-hover:opacity-100" : "opacity-100"
           }`}
         >
           {isPlaying ? (
@@ -181,7 +186,13 @@ export default function IncidentPlayer() {
           {incidentMarkers.map((incident) => (
             <g key={incident.id}>
               <circle cx={`${incident.pos}%`} cy="8" r="4" fill="#EF4444" />
-              <rect x={`${incident.pos}%`} y="16" width="1" height="100%" fill="#EF4444" />
+              <rect
+                x={`${incident.pos}%`}
+                y="16"
+                width="1"
+                height="100%"
+                fill="#EF4444"
+              />
             </g>
           ))}
 
@@ -198,18 +209,22 @@ export default function IncidentPlayer() {
         </svg>
       </div>
     </div>
-  )
+  );
 }
 
 function Thumbnail({ src, label }: { src: string; label: string }) {
   return (
     <div className="relative">
-      <img src={src} alt={label} className="w-full aspect-video object-cover rounded-lg" />
+      <img
+        src={src}
+        alt={label}
+        className="w-full aspect-video object-cover rounded-lg"
+      />
       <div className="absolute bottom-2 left-2 bg-black/70 text-white text-xs px-2 py-1 rounded">
         {label}
       </div>
     </div>
-  )
+  );
 }
 
 function PlayIcon({ className }: { className?: string }) {
@@ -221,7 +236,7 @@ function PlayIcon({ className }: { className?: string }) {
         clipRule="evenodd"
       />
     </svg>
-  )
+  );
 }
 
 function PauseIcon({ className }: { className?: string }) {
@@ -233,12 +248,12 @@ function PauseIcon({ className }: { className?: string }) {
         clipRule="evenodd"
       />
     </svg>
-  )
+  );
 }
 
 function formatTime(seconds: number): string {
-  if (!seconds || isNaN(seconds)) return '0:00'
-  const mins = Math.floor(seconds / 60)
-  const secs = Math.floor(seconds % 60)
-  return `${mins}:${secs.toString().padStart(2, '0')}`
+  if (!seconds || isNaN(seconds)) return "0:00";
+  const mins = Math.floor(seconds / 60);
+  const secs = Math.floor(seconds % 60);
+  return `${mins}:${secs.toString().padStart(2, "0")}`;
 }
