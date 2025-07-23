@@ -12,7 +12,7 @@ model Camera {
   name      String
   location  String
 
-  // ✅ Explicit relation name
+  // Define 1-to-many relation from Camera to Incident
   incidents Incident[] @relation(name: "CameraIncidents")
 }
 
@@ -20,12 +20,12 @@ model Incident {
   id         String   @id @default(auto()) @map("_id") @db.ObjectId
   cameraId   String   @db.ObjectId
 
-  // ✅ Match relation name exactly, define fields + references
+  // Match the same relation name used in Camera
   camera     Camera   @relation(name: "CameraIncidents", fields: [cameraId], references: [id])
 
   type       String?
   tsStart    DateTime
-  tsEnd      DateTime
+  tsEnd      DateTime?   // ✅ Made optional to prevent crash on null
   thumbnail  String
   resolved   Boolean  @default(false)
 }
